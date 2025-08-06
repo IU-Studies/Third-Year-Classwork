@@ -10,7 +10,7 @@ use myDatabase
 
 **English:** Switches to `myDatabase`. If it doesn’t exist, MongoDB will create it automatically.
 
-**Hinglish:** `use` command se hum kisi bhi database me switch karte hain — agar wo database already hai, toh switch ho jaayega, nahi hai toh naya create ho jaayega.
+**Hinglish:** `use` command se hum kisi bhi database me switch karte hain, agar wo database already hai, toh switch ho jaayega, nahi hai toh naya create ho jaayega.
 
 ---
 
@@ -73,7 +73,7 @@ db.users.find({ age: 25 })
 
 **English:** Finds documents where age is 25.
 
-**Hinglish:** Yahaan hum condition laga rahe hain — sirf unhi documents ko fetch karo jinki age 25 hai.
+**Hinglish:** Yahaan hum condition laga rahe hain, sirf unhi documents ko fetch karo jinki age 25 hai.
 
 ---
 
@@ -88,7 +88,7 @@ db.users.updateOne(
 
 **English:** Updates the age of the first document where the name is "IU".
 
-**Hinglish:** `updateOne` sirf pehle matching record ko update karta hai — yahaan hum IU ki age 26 kar rahe hain.
+**Hinglish:** `updateOne` sirf pehle matching record ko update karta hai, yahaan hum IU ki age 26 kar rahe hain.
 
 ---
 
@@ -102,7 +102,7 @@ db.users.deleteOne({ name: "HarPar" })
 
 **English:** Deletes the first document that matches the condition.
 
-**Hinglish:** `deleteOne` sirf pehla matching document delete karta hai — yahan `HarPar` naam wala record delete ho jaayega.
+**Hinglish:** `deleteOne` sirf pehla matching document delete karta hai, yahan `HarPar` naam wala record delete ho jaayega.
 
 ### ➤ Delete Multiple Documents
 
