@@ -5,7 +5,7 @@ import seaborn as sns
 from sklearn.preprocessing import StandardScaler 
 
 # 1. Loading the Titanic Dataset 
-df = pd.read_csv(r"C:\Users\mayur\Downloads\titanic.csv") 
+df = pd.read_csv(r"C:\Users\IU\Downloads\titanic.csv") 
 
 # Take first few rows 
 print("\nFirst 5 rows of the dataset:")
