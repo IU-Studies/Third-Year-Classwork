@@ -1,3 +1,5 @@
+## Exp 4 - Distributed Database: Implementation of Partitions: Round robin, Range partitioning techniques, List using Relational Databases.
+
 # Range Partitioning
 
 ### **Table Creation Queries**
