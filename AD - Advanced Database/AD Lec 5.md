@@ -1,4 +1,4 @@
-
+## Exp 6 - OLAP WITH ORACLE: Implementation of Analytical queries like Roll_UP, CUBE, First, Last, Rank AND Dense_rank.
 
 ## Code 1: Table Creation and Data Insertion
 
