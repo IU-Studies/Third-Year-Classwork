@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Load the dataset
-tips = pd.read_csv(r"C:\Users\mayur\Downloads\tips.csv")
+tips = pd.read_csv(r"C:\Users\IU\Downloads\tips.csv")
 
 # Univariate Analysis
 # Histogram
