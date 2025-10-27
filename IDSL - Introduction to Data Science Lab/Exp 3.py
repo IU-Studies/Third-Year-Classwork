@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt 
 
 # 1. Load and Explore the Dataset 
-titanic = pd.read_csv(r'C:\Users\mayur\Downloads\titanic.csv') 
+titanic = pd.read_csv(r'C:\Users\IU\Downloads\titanic.csv') 
 
 # Basic information 
 print("Shape:", titanic.shape) 
