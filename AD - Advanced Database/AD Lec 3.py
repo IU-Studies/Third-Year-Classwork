@@ -1,3 +1,5 @@
+# Exp 5 - Client-server Architecture: Connectivity of mysql /mongo DB with php/python/java.
+
 import pymongo
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")
