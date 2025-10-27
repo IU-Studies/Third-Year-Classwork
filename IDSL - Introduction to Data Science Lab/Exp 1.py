@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # 1. Loading the Titanic Dataset
-df = pd.read_csv(r"C:\Users\mayur\Downloads\titanic.csv")
+df = pd.read_csv(r"C:\Users\IU\Downloads\titanic.csv")
 
 # Printing first 5 rows of dataset
 print("The first 5 rows of titanic dataset:")
