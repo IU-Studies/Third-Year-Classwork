@@ -1,79 +1,91 @@
-# 1 Import Required Libraries
-import numpy as np
+# =============================================
+# Title: House Price Prediction using Linear Regression
+# Dataset: Boston Housing Dataset (Kaggle)
+# =============================================
+
+# Step 1: Import Required Libraries
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 
-# 2 Load and Explore the Dataset
-df = pd.read_csv(r"C:\Users\IU\Downloads\Housing.csv")
+# Step 2: Load and Explore the Dataset
+# Make sure the file "BostonHousing.csv" is in the same directory as this notebook
+data = pd.read_csv(r"C:\Users\IU\Downloads\BostonHousing.csv")
 
-# Display first few rows
-print("First 5 Rows:")
-print(df.head())
+print("First 5 rows of dataset:")
+print(data.head())
 
-# Display basic info and statistics
 print("\nDataset Info:")
-print(df.info())
+print(data.info())
 
-print("\nDataset Description:")
-print(df.describe())
+print("\nMissing values in dataset:")
+print(data.isnull().sum())
 
-# 3 Data Preprocessing
+print("\nStatistical Summary:")
+print(data.describe())
 
-# Convert categorical columns to numeric (yes/no → 1/0, furnishingstatus → one-hot encoding)
-binary_cols = ['mainroad', 'guestroom', 'basement', 'hotwaterheating', 
-               'airconditioning', 'prefarea']
+# Step 3: Visualize the Data
 
-for col in binary_cols:
-    df[col] = df[col].map({'yes': 1, 'no': 0})
+# Correlation Matrix
+plt.figure(figsize=(10,8))
+sns.heatmap(data.corr(), annot=True, cmap='coolwarm')
+plt.title("Correlation Matrix of Boston Housing Dataset")
+plt.show()
 
-# One-hot encode furnishingstatus
-df = pd.get_dummies(df, columns=['furnishingstatus'], drop_first=True)
+# Scatter plots between key features and target
+features_to_plot = ['RM', 'LSTAT', 'PTRATIO', 'DIS']
+for feature in features_to_plot:
+    plt.figure(figsize=(5,4))
+    sns.scatterplot(x=data[feature], y=data['MEDV'])
+    plt.title(f'{feature} vs MEDV')
+    plt.xlabel(feature)
+    plt.ylabel('House Price (MEDV)')
+    plt.show()
 
-print("\nData after encoding:")
-print(df.head())
+# Step 4: Feature Selection and Preprocessing
+X = data.drop('MEDV', axis=1)
+y = data['MEDV']
 
-# 4 Feature Selection
-X = df.drop('price', axis=1)
-y = df['price']
-
-# 5 Train-Test Split
+# Step 5: Train-Test Split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# 6 Apply Linear Regression
+# Step 6: Apply Linear Regression
 model = LinearRegression()
 model.fit(X_train, y_train)
 
-# Model summary
-print("\nIntercept (β₀):", model.intercept_)
-coeff_df = pd.DataFrame(model.coef_, X.columns, columns=['Coefficient'])
-print("\nCoefficients:")
-print(coeff_df)
-
-# 7 Evaluate the Model
+# Predictions
 y_pred = model.predict(X_test)
 
-# RMSE and R²
+# Step 7: Evaluate the Model
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 r2 = r2_score(y_test, y_pred)
 
-print(f"\nRoot Mean Squared Error (RMSE): {rmse:.2f}")
-print(f"R² Score: {r2:.4f}")
+print("\nModel Performance:")
+print(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
+print(f"R² Score: {r2:.2f}")
 
-# 8 Visualize Results
-plt.figure(figsize=(8,6))
-sns.scatterplot(x=y_test, y=y_pred, alpha=0.7, color='teal')
+# Model Coefficients
+coefficients = pd.DataFrame(model.coef_, X.columns, columns=['Coefficient'])
+print("\nModel Coefficients:")
+print(coefficients)
+
+print(f"\nIntercept: {model.intercept_:.2f}")
+
+# Step 8: Visualize Results
+plt.figure(figsize=(6,6))
+sns.scatterplot(x=y_test, y=y_pred)
 plt.xlabel("Actual Prices")
 plt.ylabel("Predicted Prices")
-plt.title("Predicted vs Actual House Prices")
-plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', linestyle='--')
+plt.title("Actual vs Predicted House Prices")
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red')
 plt.show()
 
-# 9 Correlation Heatmap
-plt.figure(figsize=(10, 8))
-sns.heatmap(df.corr(), annot=True, cmap='coolwarm', fmt=".2f")
-plt.title("Correlation Matrix of Housing Dataset")
-plt.show()
+# Step 9: Conclusion
+print("\nConclusion:")
+print("The Linear Regression model was successfully trained to predict house prices.")
+print("Model performance evaluated using RMSE and R² score.")
+print("Visualization shows a good alignment between predicted and actual prices.")
