@@ -268,3 +268,40 @@ JOIN dim_region r ON f.region_id = r.region_id
 GROUP BY d.year, r.state
 ORDER BY d.year;
 ```
+
+
+Step 1: Import Dataset
+1. Open RapidMiner Studio.
+2. Go to the &#39;Repository&#39; panel and right-click → Import Data.
+3. Select the sales transaction dataset (e.g., CSV/Excel file).
+4. Verify the attributes and metadata (e.g., date, product, region, sales_amount).
+Step 2: Data Preprocessing
+1. Handle Missing Values:
+- Use the &#39;Replace Missing Values&#39; operator.
+- Choose appropriate strategies (mean, median, mode, or remove rows).
+2. Normalization:
+- Use the &#39;Normalize&#39; operator to scale numeric features.
+- This ensures all variables contribute equally to the model.
+3. Attribute Selection:
+- Use &#39;Select Attributes&#39; to choose relevant features (e.g., product category, region, month, past
+sales).
+Step 3: Build Predictive Model
+1. Choose a Machine Learning Algorithm:
+- Linear Regression (for continuous sales prediction).
+- Decision Tree / Random Forest (for pattern-based prediction).
+- Neural Networks (for complex data with nonlinear relationships).
+2. Add the chosen operator (e.g., &#39;Linear Regression&#39;) to the process.
+
+3. Connect the preprocessed dataset to the model operator.
+Step 4: Model Evaluation
+1. Use the &#39;Split Data&#39; operator to divide data into Training (70%) and Testing (30%).
+2. Apply &#39;Performance&#39; operator to evaluate the model.
+3. Metrics to check:
+- Root Mean Squared Error (RMSE)
+- Mean Absolute Error (MAE)
+- Correlation (R²)
+4. Compare results across different models (e.g., Linear Regression vs Random Forest).
+Step 5: Sales Forecasting
+1. Once the best model is chosen, apply it on new unseen data (future dates).
+2. Use the model predictions to estimate future sales trends.
+3. Export results for reporting and decision-making.
