@@ -7,7 +7,7 @@ tips = pd.read_csv(r"C:\Users\IU\Downloads\tips.csv")
 
 # Univariate Analysis
 # Histogram
-sns.histplot(tips['total_bill'], kde=True)
+sns.histplot(tips['total_bill'])
 plt.title('Histogram of Total Bill')
 plt.show()
 
@@ -33,10 +33,11 @@ sns.pairplot(tips, hue='sex')
 plt.show()
 
 # Heatmap of Correlations
-corr = tips.corr()
-sns.heatmap(corr, annot=True, cmap='coolwarm')
+corr = tips.select_dtypes(include=['number']).corr()
+sns.heatmap(corr)
 plt.title('Correlation Heatmap')
 plt.show()
+
 
 # Facet Grid
 g = sns.FacetGrid(tips, col="time", row="sex")
