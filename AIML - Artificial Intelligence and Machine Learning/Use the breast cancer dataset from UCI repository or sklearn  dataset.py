@@ -1,3 +1,10 @@
+"""
+Use the breast cancer dataset from UCI repository or sklearn 
+datasets to build binary classifier with logistic regression. 
+Evaluate using accuracy, confusion matrix and ROC curve
+"""
+
+
 import pandas as pd
 import numpy as np
 from sklearn.datasets import load_breast_cancer
