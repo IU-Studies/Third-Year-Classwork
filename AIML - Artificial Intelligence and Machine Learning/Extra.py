@@ -490,3 +490,79 @@ print(classification_report(y_test, y_pred, target_names=iris.target_names))
 
 
 #---------------------------------------------------------------------
+
+
+# Kmeans and Silhouette Exp9
+
+import pandas as pd
+from sklearn.datasets import load_wine
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
+data = load_wine()
+X = pd.DataFrame(data.data, columns=data.feature_names)
+X_scaled = StandardScaler().fit_transform(X)
+
+k = 3
+kmeans = KMeans(n_clusters=k, random_state=42)
+labels = kmeans.fit_predict(X_scaled)
+
+score = silhouette_score(X_scaled, labels)
+print("Silhouette Score:", score)
+
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+plt.scatter(X_pca[:, 0], X_pca[:, 1], c=labels, cmap='viridis')
+plt.title("K-Means Clustering (Wine Dataset)")
+plt.xlabel("PCA 1")
+plt.ylabel("PCA 2")
+plt.show()
+
+
+
+
+#-----------------------------------------------------------
+
+#PCA Exp10
+
+import pandas as pd
+from sklearn.datasets import load_wine
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+import matplotlib.pyplot as plt
+
+data = load_wine()
+X = pd.DataFrame(data.data, columns=data.feature_names)
+y = data.target
+
+X_scaled = StandardScaler().fit_transform(X)
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+print("Explained Variance Ratio:", pca.explained_variance_ratio_.sum())
+
+kmeans = KMeans(n_clusters=3, random_state=42)
+labels = kmeans.fit_predict(X_pca)
+
+score = silhouette_score(X_pca, labels)
+print("Silhouette Score:", score)
+
+plt.figure(figsize=(8, 6))
+plt.scatter(X_pca[:, 0], X_pca[:, 1], c=labels, cmap='viridis')
+plt.title("K-Means Clustering on PCA-Reduced Wine Dataset")
+plt.xlabel("Principal Component 1")
+plt.ylabel("Principal Component 2")
+plt.show()
+
+plt.figure(figsize=(8, 6))
+plt.scatter(X_pca[:, 0], X_pca[:, 1], c=y, cmap='viridis')
+plt.title("Actual Wine Classes (After PCA)")
+plt.xlabel("Principal Component 1")
+plt.ylabel("Principal Component 2")
+plt.show()
