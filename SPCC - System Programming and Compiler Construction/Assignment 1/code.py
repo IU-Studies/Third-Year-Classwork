@@ -24,7 +24,6 @@ for line in file:
     elif words[0].isalnum() and not words[0].isalpha():
         if words[0] in symboltable:
             symboltable[words[0]] = idx
-
     idx += 1
 
 for key, value in symboltable.items():
