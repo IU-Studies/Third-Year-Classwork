@@ -1,0 +1,5 @@
+- START 100
+LOOP ADD =5
+- SUB A
+A DS 1
+- END -
