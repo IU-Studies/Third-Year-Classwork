@@ -1,227 +1,350 @@
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
-# Load dataset
-iris = load_iris()
-X = iris.data
-y = iris.target
+struct symtab {
+    char label[20];
+    int address;
+} st[20];
 
-# One-hot encoding
-encoder = OneHotEncoder(sparse_output=False)
-y = encoder.fit_transform(y.reshape(-1, 1))
+int main() {
+    FILE *fp;
+    char label[20], opcode[20], operand[20];
+    int lc, i = 0, symcount = 0;
 
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2
-)
+    fp = fopen("input.asm", "r");
+    if (fp == NULL) {
+        printf("Error opening file\n");
+        return 0;
+    }
 
-# Build model
-model = Sequential([
-    Dense(10, activation='relu', input_shape=(4,)),
-    Dense(8, activation='relu'),
-    Dense(3, activation='softmax')
-])
+    fscanf(fp, "%s %d", opcode, &lc);
 
-# Compile model
-model.compile(
-    optimizer='adam',
-    loss='categorical_crossentropy',
-    metrics=['accuracy']
-)
+    while (!feof(fp)) {
+        strcpy(label, "");
+        strcpy(opcode, "");
+        strcpy(operand, "");
 
-# Train model
-model.fit(X_train, y_train, epochs=50)
+        fscanf(fp, "%s %s %s", label, opcode, operand);
 
-# Evaluate model
-loss, accuracy = model.evaluate(X_test, y_test)
-print("Accuracy:", accuracy)
+        if (strcmp(label, "END") == 0)
+            break;
 
+        if (strcmp(label, "-") != 0) {
+            strcpy(st[symcount].label, label);
+            st[symcount].address = lc;
+            symcount++;
+        }
 
-------------------------------------------------
+        if (strcmp(opcode, "DS") == 0)
+            lc += atoi(operand) * 4;
+        else if (strcmp(opcode, "DC") == 0)
+            lc += 4;
+        else
+            lc += 4;
+    }
 
+    fclose(fp);
 
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-from sklearn.datasets import load_wine
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
+    printf("SYMBOL TABLE\n");
+    printf("-----------------\n");
+    printf("Label\tAddress\n");
 
-# Load dataset
-wine = load_wine()
-X = wine.data
-y = wine.target
+    for (i = 0; i < symcount; i++) {
+        printf("%s\t%d\n", st[i].label, st[i].address);
+    }
 
-# One-hot encoding
-encoder = OneHotEncoder(sparse_output=False)
-y = encoder.fit_transform(y.reshape(-1, 1))
-
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2
-)
-
-# Build model
-model = Sequential([
-    Dense(16, activation='relu', input_shape=(13,)),  # 13 features
-    Dense(12, activation='relu'),
-    Dense(3, activation='softmax')  # 3 wine classes
-])
-
-# Compile model
-model.compile(
-    optimizer='adam',
-    loss='categorical_crossentropy',
-    metrics=['accuracy']
-)
-
-# Train model
-model.fit(X_train, y_train, epochs=50)
-
-# Evaluate model
-loss, accuracy = model.evaluate(X_test, y_test)
-print("Accuracy:", accuracy)
-
-
-------------------------------------------------
-
-
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-from sklearn.datasets import load_breast_cancer
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
-
-# Load dataset
-cancer = load_breast_cancer()
-X = cancer.data
-y = cancer.target
-
-# One-hot encoding
-encoder = OneHotEncoder(sparse_output=False)
-y = encoder.fit_transform(y.reshape(-1, 1))
-
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2
-)
-
-# Build model
-model = Sequential([
-    Dense(16, activation='relu', input_shape=(30,)),  # 30 features
-    Dense(8, activation='relu'),
-    Dense(2, activation='softmax')  # 2 classes
-])
-
-# Compile model
-model.compile(
-    optimizer='adam',
-    loss='categorical_crossentropy',
-    metrics=['accuracy']
-)
-
-# Train model
-model.fit(X_train, y_train, epochs=50)
-
-# Evaluate model
-loss, accuracy = model.evaluate(X_test, y_test)
-print("Accuracy:", accuracy)
-
-
-
------------------------------------------------
+    return 0;
+}
 
 
 
 
-import numpy as np
-import matplotlib.pyplot as plt
-import tensorflow as tf
-from tensorflow.keras import layers, models
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.datasets import mnist
-from sklearn.metrics import classification_report
+START 100
+LOOP L 1,NUM
+- A 1,=F'5'
+- ST 1,RESULT
+- BNE LOOP
+NUM DC F'10'
+RESULT DS 1F
+END
 
-# Load dataset
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-print("Training shape:", x_train.shape)
-print("Testing shape:", x_test.shape)
 
-# Normalize (0–255 → 0–1)
-x_train = x_train / 255.0
-x_test = x_test / 255.0
+-----
 
-# Flatten (28x28 → 784)
-x_train = x_train.reshape(-1, 784)
-x_test = x_test.reshape(-1, 784)
 
-# One-hot encoding
-y_train_cat = to_categorical(y_train, 10)
-y_test_cat = to_categorical(y_test, 10)
 
-# Build model
-model = models.Sequential([
-    layers.Dense(512, activation='relu', input_shape=(784,)),
-    layers.BatchNormalization(),
-    layers.Dropout(0.3),
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
-    layers.Dense(256, activation='relu'),
-    layers.BatchNormalization(),
-    layers.Dropout(0.3),
+/* ---------- TABLE STRUCTURES ---------- */
+struct MOT {
+    char mnemonic[10];
+    int opcode;
+};
 
-    layers.Dense(128, activation='relu'),
-    layers.BatchNormalization(),
-    layers.Dropout(0.3),
+struct POT {
+    char directive[10];
+    char type[3]; // AD or DL
+    int code;
+};
 
-    layers.Dense(10, activation='softmax')
-])
+struct SYMTAB {
+    char symbol[10];
+    int address;
+};
 
-# Compile model
-model.compile(
-    optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-    loss='categorical_crossentropy',
-    metrics=['accuracy']
-)
+struct LITTAB {
+    char literal[10];
+    int address;
+};
 
-# Train model
-history = model.fit(
-    x_train, y_train_cat,
-    epochs=20,
-    batch_size=128,
-    validation_split=0.2
-)
+/* ---------- TABLE INITIALIZATION ---------- */
+struct MOT mot[] = {
+    {"STOP", 0}, {"ADD", 1}, {"SUB", 2}, {"MUL", 3}, {"MOV", 4}
+};
 
-# Evaluate model
-test_loss, test_acc = model.evaluate(x_test, y_test_cat)
-print("Test Accuracy:", test_acc)
+struct POT pot[] = {
+    {"START", "AD", 1},
+    {"END", "AD", 2},
+    {"LTORG", "AD", 3},
+    {"DS", "DL", 1},
+    {"DC", "DL", 2}
+};
 
-# Predictions
-y_pred = np.argmax(model.predict(x_test), axis=1)
+struct SYMTAB st[20];
+struct LITTAB lt[20];
 
-# Classification report
-print(classification_report(y_test, y_pred))
+int symCnt = 0, litCnt = 0;
+int LC = 0, poolPtr = 0;
 
-# Plot graphs
-plt.figure(figsize=(12,5))
+/* ---------- UTILITY FUNCTIONS ---------- */
+int searchMOT(char op[]) {
+    for (int i = 0; i < 5; i++)
+        if (strcmp(mot[i].mnemonic, op) == 0)
+            return i;
+    return -1;
+}
 
-# Accuracy
-plt.subplot(1,2,1)
-plt.plot(history.history['accuracy'], label='Train Accuracy')
-plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-plt.legend()
-plt.title("Accuracy Graph")
+int searchPOT(char op[]) {
+    for (int i = 0; i < 5; i++)
+        if (strcmp(pot[i].directive, op) == 0)
+            return i;
+    return -1;
+}
 
-# Loss
-plt.subplot(1,2,2)
-plt.plot(history.history['loss'], label='Train Loss')
-plt.plot(history.history['val_loss'], label='Validation Loss')
-plt.legend()
-plt.title("Loss Graph")
+int addSymbol(char sym[], int addr) {
+    for (int i = 0; i < symCnt; i++)
+        if (strcmp(st[i].symbol, sym) == 0)
+            return i;
 
-plt.show()
+    strcpy(st[symCnt].symbol, sym);
+    st[symCnt].address = addr;
+    return symCnt++;
+}
+
+int addLiteral(char lit[]) {
+    for (int i = 0; i < litCnt; i++)
+        if (strcmp(lt[i].literal, lit) == 0)
+            return i;
+
+    strcpy(lt[litCnt].literal, lit);
+    lt[litCnt].address = -1;
+    return litCnt++;
+}
+
+void assignLiterals() {
+    for (int i = poolPtr; i < litCnt; i++) {
+        lt[i].address = LC;
+        LC++;
+    }
+    poolPtr = litCnt;
+}
+
+/* ---------- MAIN ---------- */
+int main() {
+    char label[10], opcode[10], operand[10];
+
+    printf("Enter Assembly Program (END to stop):\n\n");
+
+    while (1) {
+        scanf("%s %s %s", label, opcode, operand);
+
+        /* START */
+        if (strcmp(opcode, "START") == 0) {
+            LC = atoi(operand);
+            printf("(AD,01) (C,%d)\n", LC);
+            continue;
+        }
+
+        /* END */
+        if (strcmp(opcode, "END") == 0) {
+            assignLiterals();
+            printf("(AD,02)\n");
+            break;
+        }
+
+        /* LTORG */
+        if (strcmp(opcode, "LTORG") == 0) {
+            assignLiterals();
+            printf("(AD,03)\n");
+            continue;
+        }
+
+        /* Add label to Symbol Table */
+        if (strcmp(label, "-") != 0)
+            addSymbol(label, LC);
+
+        /* Declarative Statements */
+        if (strcmp(opcode, "DS") == 0) {
+            printf("(DL,01) (C,%d)\n", atoi(operand));
+            LC += atoi(operand);
+            continue;
+        }
+
+        if (strcmp(opcode, "DC") == 0) {
+            printf("(DL,02) (C,%d)\n", atoi(operand));
+            LC++;
+            continue;
+        }
+
+        /* Imperative Statements */
+        int m = searchMOT(opcode);
+        if (m != -1) {
+            printf("(IS,%02d) ", mot[m].opcode);
+
+            if (operand[0] == '=') {
+                int l = addLiteral(operand);
+                printf("(L,%d)\n", l);
+            } else {
+                int s = addSymbol(operand, -1);
+                printf("(S,%d)\n", s);
+            }
+
+            LC++;
+        }
+    }
+
+    /* ---------- DISPLAY TABLES ---------- */
+    printf("\nSYMBOL TABLE\n");
+    printf("Index\tSymbol\tAddress\n");
+    for (int i = 0; i < symCnt; i++)
+        printf("%d\t%s\t%d\n", i, st[i].symbol, st[i].address);
+
+    printf("\nLITERAL TABLE\n");
+    printf("Index\tLiteral\tAddress\n");
+    for (int i = 0; i < litCnt; i++)
+        printf("%d\t%s\t%d\n", i, lt[i].literal, lt[i].address);
+
+    return 0;
+}
+
+
+
+- START 100
+LOOP ADD =5
+- SUB A
+A DS 1
+- END -
+
+
+
+
+-----
+
+
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 20
+#define LENGTH 100
+
+// Macro Name Table
+struct MNT {
+    char name[20];
+    int mdt_index;
+};
+
+struct MNT mnt[10];
+char mdt[100][LENGTH];
+
+int mnt_count = 0;
+int mdt_count = 0;
+
+int main() {
+    char line[LENGTH];
+    int insideMacro = 0;
+
+    printf("Enter Assembly Program (Type END to stop):\n");
+
+    while (1) {
+        fgets(line, LENGTH, stdin);
+        line[strcspn(line, "\n")] = 0; // remove newline
+
+        if (strcmp(line, "END") == 0) {
+            printf("END\n");
+            break;
+        }
+
+        // Start Macro Definition
+        if (strcmp(line, "MACRO") == 0) {
+            insideMacro = 1;
+
+            // Read Macro Name
+            fgets(line, LENGTH, stdin);
+            line[strcspn(line, "\n")] = 0;
+
+            strcpy(mnt[mnt_count].name, line);
+            mnt[mnt_count].mdt_index = mdt_count;
+            mnt_count++;
+
+            continue;
+        }
+
+        // Store Macro Body
+        if (insideMacro) {
+            if (strcmp(line, "MEND") == 0) {
+                insideMacro = 0;
+            } else {
+                strcpy(mdt[mdt_count++], line);
+            }
+            continue;
+        }
+
+        // Check for Macro Call
+        int found = 0;
+        for (int i = 0; i < mnt_count; i++) {
+            if (strcmp(line, mnt[i].name) == 0) {
+                printf("\nExpanded Code:\n");
+
+                int index = mnt[i].mdt_index;
+                while (index < mdt_count) {
+                    printf("%s\n", mdt[index]);
+                    index++;
+                }
+
+                found = 1;
+                break;
+            }
+        }
+
+        // Normal instruction
+        if (!found) {
+            printf("%s\n", line);
+        }
+    }
+
+    return 0;
+}
+
+MACRO
+INCR
+LDAA
+ADD B
+STAA
+MEND
+START 100
+INCR
+END
