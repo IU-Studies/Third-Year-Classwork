@@ -1,350 +1,268 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+To simulate an absolute loader for loading object code into memory.
+MEMORY_SIZE = 65536
+memory = [0] * MEMORY_SIZE
 
-struct symtab {
-    char label[20];
-    int address;
-} st[20];
+def main():
+    start_address = 0
+    length = 0
+    exec_address = 0
+    loaded_addresses = []
 
-int main() {
-    FILE *fp;
-    char label[20], opcode[20], operand[20];
-    int lc, i = 0, symcount = 0;
+    try:
+        with open("input.asm", "r") as file:
+            records = file.readlines()
+    except FileNotFoundError:
+        print("Error: input.asm file not found.")
+        return
 
-    fp = fopen("input.asm", "r");
-    if (fp == NULL) {
-        printf("Error opening file\n");
-        return 0;
-    }
+    for record in records:
+        record = record.strip()
 
-    fscanf(fp, "%s %d", opcode, &lc);
+        if record == "END":
+            break
 
-    while (!feof(fp)) {
-        strcpy(label, "");
-        strcpy(opcode, "");
-        strcpy(operand, "");
+        if record.startswith('H'):
+            parts = [p.strip() for p in record.split('^')]
+            start_address = int(parts[2], 16)
+            length = int(parts[3], 16)
 
-        fscanf(fp, "%s %s %s", label, opcode, operand);
+            print(f"Program starting address: {start_address:04X}")
+            print(f"Program length: {length:04X}")
 
-        if (strcmp(label, "END") == 0)
-            break;
+        elif record.startswith('T'):
+            parts = [p.strip() for p in record.split('^')]
+            address = int(parts[1], 16)
+            object_code = parts[3]
 
-        if (strcmp(label, "-") != 0) {
-            strcpy(st[symcount].label, label);
-            st[symcount].address = lc;
-            symcount++;
-        }
+            for i in range(0, len(object_code), 2):
+                byte = object_code[i:i+2]
+                memory[address] = int(byte, 16)
+                loaded_addresses.append(address)
+                address += 1
 
-        if (strcmp(opcode, "DS") == 0)
-            lc += atoi(operand) * 4;
-        else if (strcmp(opcode, "DC") == 0)
-            lc += 4;
-        else
-            lc += 4;
-    }
+        elif record.startswith('E'):
+            parts = [p.strip() for p in record.split('^')]
+            exec_address = int(parts[1], 16)
+            print(f"Execution begins at address: {exec_address:04X}")
 
-    fclose(fp);
-
-    printf("SYMBOL TABLE\n");
-    printf("-----------------\n");
-    printf("Label\tAddress\n");
-
-    for (i = 0; i < symcount; i++) {
-        printf("%s\t%d\n", st[i].label, st[i].address);
-    }
-
-    return 0;
-}
+    # Print only loaded memory
+    print("\nLoaded Memory:")
+    for addr in loaded_addresses:
+        print(f"{addr:04X} : {memory[addr]:02X}")
 
 
+if __name__ == "__main__":
+    main()
 
-
-START 100
-LOOP L 1,NUM
-- A 1,=F'5'
-- ST 1,RESULT
-- BNE LOOP
-NUM DC F'10'
-RESULT DS 1F
+iinput.asm
+H^COPY^001000^00107A
+T^001000^1E^141033281030301015
+T^00101E^15^482039001036281030
+E^001000
 END
 
 
 
------
 
 
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
-/* ---------- TABLE STRUCTURES ---------- */
-struct MOT {
-    char mnemonic[10];
-    int opcode;
-};
 
-struct POT {
-    char directive[10];
-    char type[3]; // AD or DL
-    int code;
-};
+To design a lexical analyzer in C to identify tokens.
 
-struct SYMTAB {
-    char symbol[10];
-    int address;
-};
+import string
 
-struct LITTAB {
-    char literal[10];
-    int address;
-};
+# List of keywords
+keywords = [
+    "int", "float", "if", "else", "while",
+    "return", "for", "char", "double", "void"
+]
 
-/* ---------- TABLE INITIALIZATION ---------- */
-struct MOT mot[] = {
-    {"STOP", 0}, {"ADD", 1}, {"SUB", 2}, {"MUL", 3}, {"MOV", 4}
-};
+def is_keyword(word):
+    return word in keywords
 
-struct POT pot[] = {
-    {"START", "AD", 1},
-    {"END", "AD", 2},
-    {"LTORG", "AD", 3},
-    {"DS", "DL", 1},
-    {"DC", "DL", 2}
-};
+def main():
+    try:
+        with open("input.c", "r") as file:
+            content = file.read()
+    except FileNotFoundError:
+        print("Error opening file")
+        return
 
-struct SYMTAB st[20];
-struct LITTAB lt[20];
+    buffer = ""
 
-int symCnt = 0, litCnt = 0;
-int LC = 0, poolPtr = 0;
+    for ch in content:
+        # Identifiers or Keywords
+        if ch.isalnum():
+            buffer += ch
+        else:
+            if buffer != "":
+                if is_keyword(buffer):
+                    print(f"{buffer} is Keyword")
+                else:
+                    print(f"{buffer} is Identifier")
+                buffer = ""
 
-/* ---------- UTILITY FUNCTIONS ---------- */
-int searchMOT(char op[]) {
-    for (int i = 0; i < 5; i++)
-        if (strcmp(mot[i].mnemonic, op) == 0)
-            return i;
-    return -1;
-}
+            # Operators
+            if ch in ['+', '-', '*', '/', '=']:
+                print(f"{ch} is Operator")
 
-int searchPOT(char op[]) {
-    for (int i = 0; i < 5; i++)
-        if (strcmp(pot[i].directive, op) == 0)
-            return i;
-    return -1;
-}
+            # Special Symbols
+            if ch in [';', ',', '(', ')', '{', '}']:
+                print(f"{ch} is Special Symbol")
 
-int addSymbol(char sym[], int addr) {
-    for (int i = 0; i < symCnt; i++)
-        if (strcmp(st[i].symbol, sym) == 0)
-            return i;
+    # To handle last word if file doesn't end with space/newline
+    if buffer != "":
+        if is_keyword(buffer):
+            print(f"{buffer} is Keyword")
+        else:
+            print(f"{buffer} is Identifier")
 
-    strcpy(st[symCnt].symbol, sym);
-    st[symCnt].address = addr;
-    return symCnt++;
-}
 
-int addLiteral(char lit[]) {
-    for (int i = 0; i < litCnt; i++)
-        if (strcmp(lt[i].literal, lit) == 0)
-            return i;
+if __name__ == "__main__":
+    main()
 
-    strcpy(lt[litCnt].literal, lit);
-    lt[litCnt].address = -1;
-    return litCnt++;
-}
-
-void assignLiterals() {
-    for (int i = poolPtr; i < litCnt; i++) {
-        lt[i].address = LC;
-        LC++;
-    }
-    poolPtr = litCnt;
-}
-
-/* ---------- MAIN ---------- */
+input.c
 int main() {
-    char label[10], opcode[10], operand[10];
-
-    printf("Enter Assembly Program (END to stop):\n\n");
-
-    while (1) {
-        scanf("%s %s %s", label, opcode, operand);
-
-        /* START */
-        if (strcmp(opcode, "START") == 0) {
-            LC = atoi(operand);
-            printf("(AD,01) (C,%d)\n", LC);
-            continue;
-        }
-
-        /* END */
-        if (strcmp(opcode, "END") == 0) {
-            assignLiterals();
-            printf("(AD,02)\n");
-            break;
-        }
-
-        /* LTORG */
-        if (strcmp(opcode, "LTORG") == 0) {
-            assignLiterals();
-            printf("(AD,03)\n");
-            continue;
-        }
-
-        /* Add label to Symbol Table */
-        if (strcmp(label, "-") != 0)
-            addSymbol(label, LC);
-
-        /* Declarative Statements */
-        if (strcmp(opcode, "DS") == 0) {
-            printf("(DL,01) (C,%d)\n", atoi(operand));
-            LC += atoi(operand);
-            continue;
-        }
-
-        if (strcmp(opcode, "DC") == 0) {
-            printf("(DL,02) (C,%d)\n", atoi(operand));
-            LC++;
-            continue;
-        }
-
-        /* Imperative Statements */
-        int m = searchMOT(opcode);
-        if (m != -1) {
-            printf("(IS,%02d) ", mot[m].opcode);
-
-            if (operand[0] == '=') {
-                int l = addLiteral(operand);
-                printf("(L,%d)\n", l);
-            } else {
-                int s = addSymbol(operand, -1);
-                printf("(S,%d)\n", s);
-            }
-
-            LC++;
-        }
+    int a = 10;
+    float b = 20;
+    if(a > b) {
+        return a;
     }
-
-    /* ---------- DISPLAY TABLES ---------- */
-    printf("\nSYMBOL TABLE\n");
-    printf("Index\tSymbol\tAddress\n");
-    for (int i = 0; i < symCnt; i++)
-        printf("%d\t%s\t%d\n", i, st[i].symbol, st[i].address);
-
-    printf("\nLITERAL TABLE\n");
-    printf("Index\tLiteral\tAddress\n");
-    for (int i = 0; i < litCnt; i++)
-        printf("%d\t%s\t%d\n", i, lt[i].literal, lt[i].address);
-
-    return 0;
 }
 
 
 
-- START 100
-LOOP ADD =5
-- SUB A
-A DS 1
-- END -
 
 
 
 
------
 
 
-#include <stdio.h>
-#include <string.h>
 
-#define MAX 20
-#define LENGTH 100
 
-// Macro Name Table
-struct MNT {
-    char name[20];
-    int mdt_index;
-};
 
-struct MNT mnt[10];
-char mdt[100][LENGTH];
 
-int mnt_count = 0;
-int mdt_count = 0;
 
-int main() {
-    char line[LENGTH];
-    int insideMacro = 0;
+To compute FIRST and FOLLOW sets for a given grammar.
 
-    printf("Enter Assembly Program (Type END to stop):\n");
+productions = []
+non_terminals = set()
 
-    while (1) {
-        fgets(line, LENGTH, stdin);
-        line[strcspn(line, "\n")] = 0; // remove newline
+first_cache = {}
+follow_cache = {}
 
-        if (strcmp(line, "END") == 0) {
-            printf("END\n");
-            break;
-        }
 
-        // Start Macro Definition
-        if (strcmp(line, "MACRO") == 0) {
-            insideMacro = 1;
+def load_file():
+    global productions, non_terminals
 
-            // Read Macro Name
-            fgets(line, LENGTH, stdin);
-            line[strcspn(line, "\n")] = 0;
+    with open("input.txt", "r") as f:
+        productions = [line.strip() for line in f if line.strip()]
 
-            strcpy(mnt[mnt_count].name, line);
-            mnt[mnt_count].mdt_index = mdt_count;
-            mnt_count++;
+    for p in productions:
+        non_terminals.add(p[0])
 
-            continue;
-        }
 
-        // Store Macro Body
-        if (insideMacro) {
-            if (strcmp(line, "MEND") == 0) {
-                insideMacro = 0;
-            } else {
-                strcpy(mdt[mdt_count++], line);
-            }
-            continue;
-        }
+def first(symbol):
+    if symbol in first_cache:
+        return first_cache[symbol]
 
-        // Check for Macro Call
-        int found = 0;
-        for (int i = 0; i < mnt_count; i++) {
-            if (strcmp(line, mnt[i].name) == 0) {
-                printf("\nExpanded Code:\n");
+    result = []
 
-                int index = mnt[i].mdt_index;
-                while (index < mdt_count) {
-                    printf("%s\n", mdt[index]);
-                    index++;
-                }
+    if symbol not in non_terminals:
+        return [symbol]
 
-                found = 1;
-                break;
-            }
-        }
+    for prod in productions:
+        if prod[0] == symbol:
+            rhs = prod[2:]
 
-        // Normal instruction
-        if (!found) {
-            printf("%s\n", line);
-        }
-    }
+            for ch in rhs:
 
-    return 0;
-}
+                if ch not in non_terminals:
+                    if ch not in result:
+                        result.append(ch)
+                    break
 
-MACRO
-INCR
-LDAA
-ADD B
-STAA
-MEND
-START 100
-INCR
-END
+                else:
+                    f = first(ch)
+
+                    for x in f:
+                        if x != '#' and x not in result:
+                            result.append(x)
+
+                    if '#' not in f:
+                        break
+
+    first_cache[symbol] = result
+    return result
+
+def follow(symbol):
+    if symbol in follow_cache:
+        return follow_cache[symbol]
+
+    result = []
+
+    # Start symbol
+    if productions[0][0] == symbol:
+        result.append('$')
+
+    for prod in productions:
+        lhs = prod[0]
+        rhs = prod[2:]
+
+        for i in range(len(rhs)):
+            if rhs[i] == symbol:
+
+                if i + 1 < len(rhs):
+
+                    next_sym = rhs[i + 1]
+
+                    f = first(next_sym)
+
+                    for x in f:
+                        if x != '#' and x not in result:
+                            result.append(x)
+
+                    if '#' in f:
+                        f2 = follow(lhs)
+                        for x in f2:
+                            if x not in result:
+                                result.append(x)
+
+                else:
+                    if lhs != symbol:
+                        f2 = follow(lhs)
+                        for x in f2:
+                            if x not in result:
+                                result.append(x)
+
+    follow_cache[symbol] = result
+    return result
+
+
+load_file()
+
+print("Productions:")
+for p in productions:
+    print(p)
+
+print("\n===== FIRST =====")
+for nt in non_terminals:
+    first_cache.clear()
+    print(f"FIRST({nt}) = {{ {' '.join(first(nt))} }}")
+
+print("\n===== FOLLOW =====")
+for nt in non_terminals:
+    follow_cache.clear()
+    print(f"FOLLOW({nt}) = {{ {' '.join(follow(nt))} }}")
+
+
+input.txt
+
+E=TR
+R=+TR
+R=#
+T=i
+
+
+
