@@ -1,1 +1,1486 @@
+"""
+EXP 1
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+
+# Load dataset
+cancer = load_breast_cancer()
+X = cancer.data
+y = cancer.target
+
+# One-hot encoding
+encoder = OneHotEncoder(sparse_output=False)
+y = encoder.fit_transform(y.reshape(-1, 1))
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2
+)
+
+# Build model
+model = Sequential([
+    Dense(16, activation='relu', input_shape=(30,)),  # 30 features
+    Dense(8, activation='relu'),
+    Dense(2, activation='softmax')  # 2 classes
+])
+
+# Compile model
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# Train model
+model.fit(X_train, y_train, epochs=50)
+
+# Evaluate model
+loss, accuracy = model.evaluate(X_test, y_test)
+print("Accuracy:", accuracy)
+
+
+
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+
+# Load dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# One-hot encoding
+encoder = OneHotEncoder(sparse_output=False)
+y = encoder.fit_transform(y.reshape(-1, 1))
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2
+)
+
+# Build model
+model = Sequential([
+    Dense(10, activation='relu', input_shape=(4,)),
+    Dense(8, activation='relu'),
+    Dense(3, activation='softmax')
+])
+
+# Compile model
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# Train model
+model.fit(X_train, y_train, epochs=50)
+
+# Evaluate model
+loss, accuracy = model.evaluate(X_test, y_test)
+print("Accuracy:", accuracy)
+
+
+
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from sklearn.datasets import load_wine
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+
+# Load dataset
+wine = load_wine()
+X = wine.data
+y = wine.target
+
+# One-hot encoding
+encoder = OneHotEncoder(sparse_output=False)
+y = encoder.fit_transform(y.reshape(-1, 1))
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2
+)
+
+# Build model
+model = Sequential([
+    Dense(16, activation='relu', input_shape=(13,)),  # 13 features
+    Dense(12, activation='relu'),
+    Dense(3, activation='softmax')  # 3 wine classes
+])
+
+# Compile model
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# Train model
+model.fit(X_train, y_train, epochs=50)
+
+# Evaluate model
+loss, accuracy = model.evaluate(X_test, y_test)
+print("Accuracy:", accuracy)
+
+
+
+
+
+
+
+
+"""
+EXP 2
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.datasets import mnist
+from sklearn.metrics import classification_report
+
+# Load dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+print("Training shape:", x_train.shape)
+print("Testing shape:", x_test.shape)
+
+# Normalize (0–255 → 0–1)
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+# Flatten (28x28 → 784)
+x_train = x_train.reshape(-1, 784)
+x_test = x_test.reshape(-1, 784)
+
+# One-hot encoding
+y_train_cat = to_categorical(y_train, 10)
+y_test_cat = to_categorical(y_test, 10)
+
+# Build model
+model = models.Sequential([
+    layers.Dense(512, activation='relu', input_shape=(784,)),
+    layers.BatchNormalization(),
+    layers.Dropout(0.3),
+
+    layers.Dense(256, activation='relu'),
+    layers.BatchNormalization(),
+    layers.Dropout(0.3),
+
+    layers.Dense(128, activation='relu'),
+    layers.BatchNormalization(),
+    layers.Dropout(0.3),
+
+    layers.Dense(10, activation='softmax')
+])
+
+# Compile model
+model.compile(
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# Train model
+history = model.fit(
+    x_train, y_train_cat,
+    epochs=20,
+    batch_size=128,
+    validation_split=0.2
+)
+
+# Evaluate model
+test_loss, test_acc = model.evaluate(x_test, y_test_cat)
+print("Test Accuracy:", test_acc)
+
+# Predictions
+y_pred = np.argmax(model.predict(x_test), axis=1)
+
+# Classification report
+print(classification_report(y_test, y_pred))
+
+# Plot graphs
+plt.figure(figsize=(12,5))
+
+# Accuracy
+plt.subplot(1,2,1)
+plt.plot(history.history['accuracy'], label='Train Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.legend()
+plt.title("Accuracy Graph")
+
+# Loss
+plt.subplot(1,2,2)
+plt.plot(history.history['loss'], label='Train Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.legend()
+plt.title("Loss Graph")
+
+plt.show()
+
+
+
+
+
+
+"""
+EXP 3:
+Develop classification model for cat-dogs dataset using cnn model.
+Analyze the model accuracy and generate classification report.
+● develop an GUI and test the user given inputs.
+● Analyze the result with and without regularization/dropout
+"""
+
+# =====================================================
+# CAT vs DOG CLASSIFICATION USING CNN
+# =====================================================
+
+# Install libraries
+!pip install tensorflow scikit-learn seaborn -q
+
+# =====================================================
+# IMPORT LIBRARIES
+# =====================================================
+
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from tensorflow.keras import layers, models
+from sklearn.metrics import classification_report, confusion_matrix
+
+print("Libraries Loaded")
+
+# =====================================================
+# LOAD DATASET (TensorFlow built-in CIFAR-10)
+# =====================================================
+
+(train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.cifar10.load_data()
+
+# CIFAR-10 classes
+# Cat = 3
+# Dog = 5
+
+cat_class = 3
+dog_class = 5
+
+# Filter only cats and dogs
+train_filter = (train_labels == cat_class) | (train_labels == dog_class)
+test_filter = (test_labels == cat_class) | (test_labels == dog_class)
+
+train_images = train_images[train_filter.flatten()]
+train_labels = train_labels[train_filter.flatten()]
+
+test_images = test_images[test_filter.flatten()]
+test_labels = test_labels[test_filter.flatten()]
+
+# Convert labels
+# Cat = 0
+# Dog = 1
+
+train_labels = (train_labels == dog_class).astype(int)
+test_labels = (test_labels == dog_class).astype(int)
+
+# Normalize images
+train_images = train_images / 255.0
+test_images = test_images / 255.0
+
+print("Dataset Ready")
+
+# =====================================================
+# CNN MODEL WITHOUT REGULARIZATION
+# =====================================================
+
+print("\nTraining CNN WITHOUT Regularization")
+
+model = models.Sequential([
+    
+    layers.Conv2D(
+        32,
+        (3, 3),
+        activation='relu',
+        input_shape=(32, 32, 3)
+    ),
+    
+    layers.MaxPooling2D(2, 2),
+
+    layers.Conv2D(
+        64,
+        (3, 3),
+        activation='relu'
+    ),
+
+    layers.MaxPooling2D(2, 2),
+
+    layers.Flatten(),
+
+    layers.Dense(
+        128,
+        activation='relu'
+    ),
+
+    layers.Dense(
+        1,
+        activation='sigmoid'
+    )
+])
+
+model.compile(
+    optimizer='adam',
+    loss='binary_crossentropy',
+    metrics=['accuracy']
+)
+
+model.summary()
+
+history = model.fit(
+    train_images,
+    train_labels,
+    epochs=5,
+    validation_data=(test_images, test_labels)
+)
+
+loss, acc = model.evaluate(test_images, test_labels)
+
+print("\nAccuracy WITHOUT Regularization:", acc)
+
+# =====================================================
+# CLASSIFICATION REPORT
+# =====================================================
+
+pred = model.predict(test_images)
+pred = (pred > 0.5).astype(int)
+
+print("\nClassification Report\n")
+
+print(classification_report(test_labels, pred))
+
+# =====================================================
+# CONFUSION MATRIX
+# =====================================================
+
+cm = confusion_matrix(test_labels, pred)
+
+plt.figure(figsize=(5, 4))
+
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt="d",
+    cmap="Blues"
+)
+
+plt.title("Confusion Matrix - Without Regularization")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+
+plt.show()
+
+# =====================================================
+# CNN MODEL WITH DROPOUT REGULARIZATION
+# =====================================================
+
+print("\nTraining CNN WITH Dropout Regularization")
+
+model_reg = models.Sequential([
+
+    layers.Conv2D(
+        32,
+        (3, 3),
+        activation='relu',
+        input_shape=(32, 32, 3)
+    ),
+
+    layers.MaxPooling2D(2, 2),
+
+    layers.Conv2D(
+        64,
+        (3, 3),
+        activation='relu'
+    ),
+
+    layers.MaxPooling2D(2, 2),
+
+    layers.Flatten(),
+
+    layers.Dense(
+        128,
+        activation='relu'
+    ),
+
+    layers.Dropout(0.5),
+
+    layers.Dense(
+        1,
+        activation='sigmoid'
+    )
+])
+
+model_reg.compile(
+    optimizer='adam',
+    loss='binary_crossentropy',
+    metrics=['accuracy']
+)
+
+history_reg = model_reg.fit(
+    train_images,
+    train_labels,
+    epochs=5,
+    validation_data=(test_images, test_labels)
+)
+
+loss_reg, acc_reg = model_reg.evaluate(test_images, test_labels)
+
+print("\nAccuracy WITH Dropout:", acc_reg)
+
+# =====================================================
+# ACCURACY COMPARISON GRAPH
+# =====================================================
+
+plt.figure(figsize=(6, 4))
+
+plt.plot(history.history['accuracy'])
+plt.plot(history_reg.history['accuracy'])
+
+plt.legend([
+    "Without Regularization",
+    "With Dropout"
+])
+
+plt.title("Accuracy Comparison")
+plt.xlabel("Epoch")
+plt.ylabel("Accuracy")
+
+plt.show()
+
+print("\nExperiment Completed Successfully")
+
+
+
+
+
+
+"""
+EXP 4:
+Develop face recognition system using CNN. Create a dataset of minimum 50 
+students from your class. Check and validate the accuracy of the model. 
+Apply dimensionality reduction on input image and plot the change in 
+accuracy of system.
+"""
+
+# ==============================
+# FACE RECOGNITION USING CNN + PCA (Exp 4)
+# ==============================
+
+import tensorflow as tf
+from tensorflow.keras import layers, models
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
+from sklearn.svm import SVC
+from sklearn.datasets import fetch_lfw_people
+
+IMG_SIZE = 100
+
+print("\nLoading LFW dataset...")
+
+lfw = fetch_lfw_people(min_faces_per_person=20, resize=0.5)
+
+X = lfw.images
+y = lfw.target
+class_names = lfw.target_names
+
+print("Original shape:", X.shape)
+
+# Convert grayscale → RGB
+X = np.array([
+    cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+    for img in X
+])
+
+# Resize images
+X = np.array([
+    cv2.resize(img, (IMG_SIZE, IMG_SIZE))
+    for img in X
+])
+
+# Normalize
+X = X / 255.0
+
+print("Processed shape:", X.shape)
+print("Number of classes:", len(class_names))
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+# ==============================
+# CNN MODEL
+# ==============================
+
+print("\nTraining CNN model...")
+
+model = models.Sequential([
+    layers.Conv2D(
+        32,
+        (3, 3),
+        activation='relu',
+        input_shape=(100, 100, 3)
+    ),
+
+    layers.MaxPooling2D((2, 2)),
+
+    layers.Conv2D(
+        64,
+        (3, 3),
+        activation='relu'
+    ),
+
+    layers.MaxPooling2D((2, 2)),
+
+    layers.Flatten(),
+
+    layers.Dense(128, activation='relu'),
+
+    layers.Dense(
+        len(class_names),
+        activation='softmax'
+    )
+])
+
+model.compile(
+    optimizer='adam',
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+history = model.fit(
+    X_train,
+    y_train,
+    epochs=10,
+    validation_data=(X_test, y_test)
+)
+
+# Evaluate CNN
+test_loss, test_acc = model.evaluate(X_test, y_test)
+
+print("\nCNN Accuracy:", test_acc)
+
+# ==============================
+# PCA + SVM
+# ==============================
+
+print("\nApplying PCA...")
+
+# Flatten images
+X_flat = X.reshape(len(X), -1)
+
+dims = [50, 100, 200, 300]
+accuracies = []
+
+for d in dims:
+
+    print(f"\nProcessing PCA with {d} dimensions...")
+
+    pca = PCA(n_components=d)
+
+    X_pca = pca.fit_transform(X_flat)
+
+    X_train_pca, X_test_pca, y_train_pca, y_test_pca = train_test_split(
+        X_pca,
+        y,
+        test_size=0.2,
+        random_state=42
+    )
+
+    clf = SVC()
+
+    clf.fit(X_train_pca, y_train_pca)
+
+    acc = clf.score(X_test_pca, y_test_pca)
+
+    accuracies.append(acc)
+
+    print(f"Accuracy with {d} dimensions: {acc}")
+
+# ==============================
+# GRAPH
+# ==============================
+
+plt.plot(dims, accuracies, marker='o')
+
+plt.xlabel("Number of Dimensions")
+plt.ylabel("Accuracy")
+plt.title("Accuracy vs Dimensionality Reduction")
+
+plt.grid()
+
+plt.show()
+
+# ==============================
+# FINAL RESULTS
+# ==============================
+
+print("\n===== FINAL RESULTS =====")
+
+print("CNN Accuracy:", test_acc)
+
+for d, acc in zip(dims, accuracies):
+    print(f"PCA ({d} dims) Accuracy: {acc}")
+
+
+
+
+
+
+"""
+EXP 5:
+Apply transfer learning with pre-trained VGG16/ResNet50/MobileNet model on 
+given dataset and analyze the results
+"""
+import tensorflow as tf
+
+from tensorflow.keras.applications import (
+    VGG16,
+    ResNet50,
+    MobileNet
+)
+
+from tensorflow.keras.models import Model
+
+from tensorflow.keras.layers import (
+    Dense,
+    GlobalAveragePooling2D
+)
+
+from tensorflow.keras.datasets import cifar10
+
+import matplotlib.pyplot as plt
+
+# ==============================
+# LOAD CIFAR-10 DATASET
+# ==============================
+
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+
+NUM_CLASSES = 10
+BATCH_SIZE = 32
+
+# ==============================
+# PREPROCESS FUNCTION
+# ==============================
+
+def preprocess(image, label):
+
+    # Resize images
+    image = tf.image.resize(image, (224, 224))
+
+    # Normalize images
+    image = image / 255.0
+
+    # One-hot encode labels
+    label = tf.one_hot(label[0], NUM_CLASSES)
+
+    return image, label
+
+# ==============================
+# CREATE DATASETS
+# ==============================
+
+train_ds = tf.data.Dataset.from_tensor_slices(
+    (x_train, y_train)
+)
+
+train_ds = train_ds.map(preprocess).batch(BATCH_SIZE)
+
+test_ds = tf.data.Dataset.from_tensor_slices(
+    (x_test, y_test)
+)
+
+test_ds = test_ds.map(preprocess).batch(BATCH_SIZE)
+
+# ==============================
+# BUILD MODEL FUNCTION
+# ==============================
+
+def build_model(base_model):
+
+    # Freeze pretrained layers
+    base_model.trainable = False
+
+    x = base_model.output
+
+    x = GlobalAveragePooling2D()(x)
+
+    x = Dense(
+        128,
+        activation='relu'
+    )(x)
+
+    output = Dense(
+        NUM_CLASSES,
+        activation='softmax'
+    )(x)
+
+    model = Model(
+        inputs=base_model.input,
+        outputs=output
+    )
+
+    model.compile(
+        optimizer='adam',
+        loss='categorical_crossentropy',
+        metrics=['accuracy']
+    )
+
+    return model
+
+# ==============================
+# LOAD PRETRAINED MODELS
+# ==============================
+
+models = {
+    "VGG16": VGG16(
+        weights='imagenet',
+        include_top=False,
+        input_shape=(224, 224, 3)
+    ),
+
+    "ResNet50": ResNet50(
+        weights='imagenet',
+        include_top=False,
+        input_shape=(224, 224, 3)
+    ),
+
+    "MobileNet": MobileNet(
+        weights='imagenet',
+        include_top=False,
+        input_shape=(224, 224, 3)
+    )
+}
+
+EPOCHS = 3   # Reduced for speed
+
+history_dict = {}
+
+# ==============================
+# TRAIN EACH MODEL
+# ==============================
+
+for name, base in models.items():
+
+    print(f"\nTraining {name}...")
+
+    model = build_model(base)
+
+    history = model.fit(
+        train_ds,
+        validation_data=test_ds,
+        epochs=EPOCHS
+    )
+
+    history_dict[name] = history.history
+
+# ==============================
+# PLOT VALIDATION ACCURACY
+# ==============================
+
+for name, history in history_dict.items():
+
+    plt.plot(
+        history['val_accuracy'],
+        label=name
+    )
+
+plt.legend()
+
+plt.title("Model Comparison")
+
+plt.xlabel("Epochs")
+plt.ylabel("Validation Accuracy")
+
+plt.show()
+
+
+
+
+
+
+
+
+
+
+"""
+EXP 7:
+Develop RNN/LSTM/GRU model for suitable application. 
+"""
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.preprocessing import MinMaxScaler
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import (
+    Dense,
+    SimpleRNN,
+    LSTM,
+    GRU
+)
+
+import yfinance as yf
+
+# ==============================
+# DOWNLOAD STOCK DATA
+# ==============================
+
+data = yf.download(
+    "AAPL",
+    start="2015-01-01",
+    end="2023-01-01"
+)
+
+# Use closing prices
+dataset = data['Close'].values.reshape(-1, 1)
+
+# ==============================
+# NORMALIZE DATA
+# ==============================
+
+scaler = MinMaxScaler(feature_range=(0, 1))
+
+dataset_scaled = scaler.fit_transform(dataset)
+
+# ==============================
+# CREATE DATASET FUNCTION
+# ==============================
+
+def create_dataset(data, time_step=50):
+
+    X, Y = [], []
+
+    for i in range(len(data) - time_step - 1):
+
+        X.append(data[i:(i + time_step), 0])
+
+        Y.append(data[i + time_step, 0])
+
+    return np.array(X), np.array(Y)
+
+# ==============================
+# PREPARE INPUT DATA
+# ==============================
+
+time_step = 50
+
+X, y = create_dataset(dataset_scaled, time_step)
+
+# Reshape input for RNN/LSTM/GRU
+X = X.reshape(X.shape[0], X.shape[1], 1)
+
+# ==============================
+# TRAIN-TEST SPLIT
+# ==============================
+
+split = int(len(X) * 0.8)
+
+X_train, X_test = X[:split], X[split:]
+y_train, y_test = y[:split], y[split:]
+
+# ==============================
+# BUILD RNN MODEL
+# ==============================
+
+def build_rnn():
+
+    model = Sequential()
+
+    model.add(
+        SimpleRNN(
+            50,
+            input_shape=(time_step, 1)
+        )
+    )
+
+    model.add(Dense(1))
+
+    model.compile(
+        optimizer='adam',
+        loss='mse'
+    )
+
+    return model
+
+# ==============================
+# BUILD LSTM MODEL
+# ==============================
+
+def build_lstm():
+
+    model = Sequential()
+
+    model.add(
+        LSTM(
+            50,
+            input_shape=(time_step, 1)
+        )
+    )
+
+    model.add(Dense(1))
+
+    model.compile(
+        optimizer='adam',
+        loss='mse'
+    )
+
+    return model
+
+# ==============================
+# BUILD GRU MODEL
+# ==============================
+
+def build_gru():
+
+    model = Sequential()
+
+    model.add(
+        GRU(
+            50,
+            input_shape=(time_step, 1)
+        )
+    )
+
+    model.add(Dense(1))
+
+    model.compile(
+        optimizer='adam',
+        loss='mse'
+    )
+
+    return model
+
+# ==============================
+# CREATE MODELS
+# ==============================
+
+models = {
+    "RNN": build_rnn(),
+    "LSTM": build_lstm(),
+    "GRU": build_gru()
+}
+
+predictions = {}
+
+EPOCHS = 5
+
+# ==============================
+# TRAIN MODELS
+# ==============================
+
+for name, model in models.items():
+
+    print(f"\nTraining {name}...")
+
+    model.fit(
+        X_train,
+        y_train,
+        validation_data=(X_test, y_test),
+        epochs=EPOCHS,
+        batch_size=32,
+        verbose=1
+    )
+
+    pred = model.predict(X_test)
+
+    predictions[name] = scaler.inverse_transform(pred)
+
+# ==============================
+# PLOT RESULTS
+# ==============================
+
+plt.figure(figsize=(10, 6))
+
+# Actual prices
+plt.plot(
+    scaler.inverse_transform(
+        y_test.reshape(-1, 1)
+    ),
+    label="Actual",
+    color='black'
+)
+
+# Predicted prices
+for name, pred in predictions.items():
+
+    plt.plot(
+        pred,
+        label=name
+    )
+
+plt.title("RNN vs LSTM vs GRU (Stock Prediction)")
+
+plt.xlabel("Time")
+plt.ylabel("Stock Price")
+
+plt.legend()
+
+plt.show()
+
+
+
+
+
+
+
+
+
+
+"""
+EXP 8:
+Develop an autoencoder to encode and decode the image. Analyse the results. 
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+from tensorflow.keras.layers import (
+    Input,
+    Dense
+)
+
+from tensorflow.keras.models import Model
+
+from tensorflow.keras.datasets import mnist
+
+# ==============================
+# LOAD MNIST DATASET
+# ==============================
+
+(x_train, _), (x_test, _) = mnist.load_data()
+
+# ==============================
+# NORMALIZE DATA
+# ==============================
+
+x_train = x_train.astype('float32') / 255.0
+x_test = x_test.astype('float32') / 255.0
+
+# ==============================
+# RESHAPE TO VECTORS
+# ==============================
+
+x_train = x_train.reshape((len(x_train), 28 * 28))
+x_test = x_test.reshape((len(x_test), 28 * 28))
+
+# ==============================
+# MODEL PARAMETERS
+# ==============================
+
+input_dim = 784
+encoding_dim = 64   # Compressed representation size
+
+# ==============================
+# ENCODER
+# ==============================
+
+input_img = Input(shape=(input_dim,))
+
+encoded = Dense(
+    128,
+    activation='relu'
+)(input_img)
+
+encoded = Dense(
+    encoding_dim,
+    activation='relu'
+)(encoded)
+
+# ==============================
+# DECODER
+# ==============================
+
+decoded = Dense(
+    128,
+    activation='relu'
+)(encoded)
+
+decoded = Dense(
+    input_dim,
+    activation='sigmoid'
+)(decoded)
+
+# ==============================
+# AUTOENCODER MODEL
+# ==============================
+
+autoencoder = Model(
+    input_img,
+    decoded
+)
+
+# ==============================
+# ENCODER MODEL
+# (Compressed Representation)
+# ==============================
+
+encoder = Model(
+    input_img,
+    encoded
+)
+
+# ==============================
+# COMPILE MODEL
+# ==============================
+
+autoencoder.compile(
+    optimizer='adam',
+    loss='binary_crossentropy'
+)
+
+# ==============================
+# TRAIN MODEL
+# ==============================
+
+history = autoencoder.fit(
+    x_train,
+    x_train,
+    epochs=10,
+    batch_size=256,
+    shuffle=True,
+    validation_data=(x_test, x_test)
+)
+
+# ==============================
+# ENCODE & RECONSTRUCT IMAGES
+# ==============================
+
+encoded_imgs = encoder.predict(x_test)
+
+decoded_imgs = autoencoder.predict(x_test)
+
+# ==============================
+# DISPLAY RESULTS
+# ==============================
+
+n = 10
+
+plt.figure(figsize=(20, 4))
+
+for i in range(n):
+
+    # --------------------------
+    # ORIGINAL IMAGE
+    # --------------------------
+
+    ax = plt.subplot(2, n, i + 1)
+
+    plt.imshow(
+        x_test[i].reshape(28, 28)
+    )
+
+    plt.title("Original")
+
+    plt.gray()
+
+    plt.axis("off")
+
+    # --------------------------
+    # RECONSTRUCTED IMAGE
+    # --------------------------
+
+    ax = plt.subplot(2, n, i + n + 1)
+
+    plt.imshow(
+        decoded_imgs[i].reshape(28, 28)
+    )
+
+    plt.title("Reconstructed")
+
+    plt.gray()
+
+    plt.axis("off")
+
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+""" 
+EXP 9:
+Case study GAN
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+
+from tensorflow.keras.layers import (
+    Dense,
+    Flatten,
+    Reshape,
+    LeakyReLU,
+    Input
+)
+
+from tensorflow.keras.optimizers import Adam
+
+# ==============================
+# LOAD MNIST DATASET
+# ==============================
+
+(X_train, _), (_, _) = mnist.load_data()
+
+# Normalize images to [-1, 1]
+X_train = (X_train.astype(np.float32) - 127.5) / 127.5
+
+# Add channel dimension
+X_train = np.expand_dims(X_train, axis=-1)
+
+# ==============================
+# PARAMETERS
+# ==============================
+
+img_shape = (28, 28, 1)
+latent_dim = 100
+
+# ==============================
+# BUILD GENERATOR
+# ==============================
+
+def build_generator():
+
+    model = Sequential([
+
+        Input(shape=(latent_dim,)),
+
+        Dense(256),
+        LeakyReLU(0.2),
+
+        Dense(512),
+        LeakyReLU(0.2),
+
+        Dense(1024),
+        LeakyReLU(0.2),
+
+        Dense(
+            28 * 28,
+            activation='tanh'
+        ),
+
+        Reshape(img_shape)
+    ])
+
+    return model
+
+# ==============================
+# BUILD DISCRIMINATOR
+# ==============================
+
+def build_discriminator():
+
+    model = Sequential([
+
+        Input(shape=img_shape),
+
+        Flatten(),
+
+        Dense(512),
+        LeakyReLU(0.2),
+
+        Dense(256),
+        LeakyReLU(0.2),
+
+        Dense(
+            1,
+            activation='sigmoid'
+        )
+    ])
+
+    model.compile(
+        loss='binary_crossentropy',
+        optimizer=Adam(0.0002, 0.5),
+        metrics=['accuracy']
+    )
+
+    return model
+
+# ==============================
+# CREATE MODELS
+# ==============================
+
+generator = build_generator()
+
+discriminator = build_discriminator()
+
+# Freeze discriminator while training GAN
+discriminator.trainable = False
+
+# ==============================
+# BUILD GAN
+# ==============================
+
+gan = Sequential([
+    generator,
+    discriminator
+])
+
+gan.compile(
+    loss='binary_crossentropy',
+    optimizer=Adam(0.0002, 0.5)
+)
+
+# ==============================
+# TRAIN FUNCTION
+# ==============================
+
+def train(epochs, batch_size=64, sample_interval=500):
+
+    # Labels
+    valid = np.ones((batch_size, 1))
+    fake = np.zeros((batch_size, 1))
+
+    for epoch in range(epochs):
+
+        # --------------------------
+        # TRAIN DISCRIMINATOR
+        # --------------------------
+
+        idx = np.random.randint(
+            0,
+            X_train.shape[0],
+            batch_size
+        )
+
+        real_imgs = X_train[idx]
+
+        noise = np.random.normal(
+            0,
+            1,
+            (batch_size, latent_dim)
+        )
+
+        gen_imgs = generator.predict(
+            noise,
+            verbose=0
+        )
+
+        d_loss_real = discriminator.train_on_batch(
+            real_imgs,
+            valid
+        )
+
+        d_loss_fake = discriminator.train_on_batch(
+            gen_imgs,
+            fake
+        )
+
+        d_loss = 0.5 * np.add(
+            d_loss_real,
+            d_loss_fake
+        )
+
+        # --------------------------
+        # TRAIN GENERATOR
+        # --------------------------
+
+        noise = np.random.normal(
+            0,
+            1,
+            (batch_size, latent_dim)
+        )
+
+        g_loss = gan.train_on_batch(
+            noise,
+            valid
+        )
+
+        # --------------------------
+        # PRINT PROGRESS
+        # --------------------------
+
+        if epoch % sample_interval == 0:
+
+            print(
+                f"{epoch} "
+                f"[D loss: {d_loss[0]:.4f}, "
+                f"acc: {100 * d_loss[1]:.2f}%] "
+                f"[G loss: {g_loss:.4f}]"
+            )
+
+            sample_images(generator, epoch)
+
+# ==============================
+# GENERATE SAMPLE IMAGES
+# ==============================
+
+def sample_images(generator, epoch):
+
+    noise = np.random.normal(
+        0,
+        1,
+        (10, latent_dim)
+    )
+
+    gen_imgs = generator.predict(
+        noise,
+        verbose=0
+    )
+
+    # Rescale images to [0,1]
+    gen_imgs = 0.5 * gen_imgs + 0.5
+
+    plt.figure(figsize=(10, 2))
+
+    for i in range(10):
+
+        plt.subplot(1, 10, i + 1)
+
+        plt.imshow(
+            gen_imgs[i, :, :, 0],
+            cmap='gray'
+        )
+
+        plt.axis('off')
+
+    plt.show()
+
+# ==============================
+# TRAIN GAN
+# ==============================
+
+train(
+    epochs=5000,
+    batch_size=64,
+    sample_interval=500
+)
 
